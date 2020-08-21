@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         repository: GoogleCloudPlatform/functions-framework-conformance
-        path: "$GO_PATH/src/github.com/GoogleCloudPlatform/functions-framework-conformance"
+        path: echo "$GO_PATH/src/github.com/GoogleCloudPlatform/functions-framework-conformance"
 
     - name: Run HTTP conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.1.0
