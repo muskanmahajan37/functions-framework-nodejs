@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        path: functions-framework-nodejs
     
     - uses: actions/checkout@v2
       with:
@@ -23,7 +25,7 @@ jobs:
       with:
         functionType: 'http'
         validateMapping: false
-        source: 'test/conformance'
+        source: 'functions-framework-nodejs/test/conformance'
         target: 'writeHTTP'
         runtime: 'nodejs10'
         tag: 'nodejs10_20200805_20_RC00'
@@ -33,7 +35,7 @@ jobs:
       with:
         functionType: 'legacyevent'
         validateMapping: false
-        source: 'test/conformance'
+        source: 'functions-framework-nodejs/test/conformance'
         target: 'writeLegacyEvent'
         runtime: 'nodejs10'
         tag: 'nodejs10_20200805_20_RC00'
@@ -43,7 +45,7 @@ jobs:
       with:
         functionType: 'cloudevent'
         validateMapping: false
-        source: 'test/conformance'
+        source: 'functions-framework-nodejs/test/conformance'
         target: 'writeCloudEvent'
         runtime: 'nodejs10'
         tag: 'nodejs10_20200805_20_RC00'
