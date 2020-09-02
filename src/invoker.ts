@@ -199,23 +199,28 @@ function wrapEventFunction(
         }
       }
     );
+    // {"@type":"type.googleapis.com/google.pubsub.v1.PubsubMessage","attributes":null,"data":"Zm9vYmFy"}
     let data = event.data;
-    let context = event.context;
+    
+    // Handle GCF events and GCF legacy events
+    // event.context = {
+    //   "eventId":"1490079394775112",
+    //   "timestamp":"2020-09-02T21:32:27.614Z",
+    //   "eventType":"google.pubsub.topic.publish",
+    //   "resource":{"service":"pubsub.googleapis.com","name":"projects/serverless-com-demo/topics/my-topic","type":"type.googleapis.com/google.pubsub.v1.PubsubMessage"}
+    let context = event.context || {
+      eventId: event.eventId,
+      timestamp: event.timestamp,
+      eventType: event.eventType,
+      resource: event.resource,
+    };
+
+    // Convert CloudEvent to Event signature
     if (isBinaryCloudEvent(req)) {
-      // Support CloudEvents in binary content mode, with data being the whole
-      // request body and context attributes retrieved from request headers.
-      data = event;
+      data = event.data;
       context = getBinaryCloudEventContext(req);
-    } else if (context === undefined) {
-      // Support legacy events and CloudEvents in structured content mode, with
-      // context properties represented as event top-level properties.
-      // Context is everything but data.
-      context = event;
-      // Clear the property before removing field so the data object
-      // is not deleted.
-      context.data = undefined;
-      delete context.data;
     }
+    
     // Callback style if user function has more than 2 arguments.
     if (userFunction!.length > 2) {
       const fn = userFunction as EventFunctionWithCallback;

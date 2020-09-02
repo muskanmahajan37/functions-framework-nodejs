@@ -148,6 +148,9 @@ describe('GCF event request to event function', () => {
         .send(test.body)
         .set('Content-Type', 'application/json')
         .expect(204);
+
+      console.log(receivedData);
+      console.log(receivedContext);
       assert.deepStrictEqual(receivedData, { some: 'payload' });
       assert.notStrictEqual(receivedContext, null);
       assert.strictEqual(receivedContext!.eventId, 'testEventId');
