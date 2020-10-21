@@ -17,7 +17,7 @@ import * as express from 'express';
 import * as http from 'http';
 import {HandlerFunction} from './functions';
 import {SignatureType} from './types';
-import {setLatestRes} from './invoker';
+import {Response} from './invoker';
 import {registerFunctionRoutes} from './router';
 
 /**
@@ -38,7 +38,7 @@ export function getServer(
 
   // Set request-specific values in the very first middleware.
   app.use('/*', (req, res, next) => {
-    setLatestRes(res);
+    Response.latest = res;
     res.locals.functionExecutionFinished = false;
     next();
   });

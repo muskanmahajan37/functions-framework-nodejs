@@ -34,7 +34,7 @@
 import * as minimist from 'minimist';
 import {resolve} from 'path';
 import {getUserFunction} from './loader';
-import {ErrorHandler} from './invoker';
+import {FunctionsFrameworkErrorHandler} from './error';
 import {getServer} from './server';
 import {SignatureType} from './types';
 
@@ -104,10 +104,8 @@ if (!USER_FUNCTION) {
 }
 
 const SERVER = getServer(USER_FUNCTION!, SIGNATURE_TYPE!);
-const ERROR_HANDLER = new ErrorHandler(SERVER);
-
 SERVER.listen(PORT, () => {
-  ERROR_HANDLER.register();
+  FunctionsFrameworkErrorHandler.register(SERVER);
   if (process.env.NODE_ENV !== NodeEnv.PRODUCTION) {
     console.log('Serving function...');
     console.log(`Function: ${TARGET}`);

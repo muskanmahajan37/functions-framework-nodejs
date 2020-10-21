@@ -23,7 +23,6 @@
 // eslint-disable-next-line node/no-deprecated-api
 import * as domain from 'domain';
 import * as express from 'express';
-import * as http from 'http';
 import {FUNCTION_STATUS_HEADER_FIELD} from './types';
 import {sendCrashResponse} from './logger';
 import {isBinaryCloudEvent, getBinaryCloudEventContext} from './cloudevents';
@@ -48,12 +47,17 @@ declare global {
 
 /**
  * Response object for the most recent request.
- * Used for sending errors to the user.
+ * Used for sending latest response/errors to the user.
  */
-let latestRes: express.Response | null = null;
-export const setLatestRes = (res: express.Response) => {
-  latestRes = res;
-};
+export class Response {
+  private static latestRes: express.Response | null = null;
+  static get latest(): express.Response | null {
+    return this.latestRes;
+  }
+  static set latest(res: express.Response | null) {
+    this.latestRes = res;
+  }
+}
 
 /**
  * Sends back a response to the incoming request.
@@ -233,51 +237,4 @@ export function wrapEventFunction(
         }
       );
   };
-}
-
-// Use an exit code which is unused by Node.js:
-// https://nodejs.org/api/process.html#process_exit_codes
-const killInstance = process.exit.bind(process, 16);
-
-/**
- * Enables registration of error handlers.
- * @param server HTTP server which invokes user's function.
- * @constructor
- */
-export class ErrorHandler {
-  constructor(private readonly server: http.Server) {
-    this.server = server;
-  }
-  /**
-   * Registers handlers for uncaught exceptions and other unhandled errors.
-   */
-  register() {
-    process.on('uncaughtException', err => {
-      console.error('Uncaught exception');
-      sendCrashResponse({err, res: latestRes, callback: killInstance});
-    });
-
-    process.on('unhandledRejection', err => {
-      console.error('Unhandled rejection');
-      sendCrashResponse({err, res: latestRes, callback: killInstance});
-    });
-
-    process.on('exit', code => {
-      sendCrashResponse({
-        err: new Error(`Process exited with code ${code}`),
-        res: latestRes,
-        silent: code === 0,
-      });
-    });
-
-    ['SIGINT', 'SIGTERM'].forEach(signal => {
-      process.on(signal as NodeJS.Signals, () => {
-        console.log(`Received ${signal}`);
-        this.server.close(() => {
-          // eslint-disable-next-line no-process-exit
-          process.exit();
-        });
-      });
-    });
-  }
 }
